@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canaã Gestão - Sistema Final</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <style>
+        :root {
+            --azul-escuro: #132638;
+            --azul-claro: #4AB3FC;
+            --amarelo-canaa: #E5DD28;
+            --cinza-fundo: #F4F7F9;
+            --cinza-texto: #505962;
+            --branco: #FFFFFF;
+            --verde: #28a745;
+            --vermelho: #E53E3E;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cinza-fundo);
+            padding: 10px;
+            color: var(--azul-escuro);
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .no-print {
+            background: var(--branco);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 950px;
+            margin: 0 auto 20px;
+            border-top: 6px solid var(--azul-escuro);
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .site-logo {
+            max-width: 100px;
+            margin-right: 15px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-link {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 2px solid var(--azul-escuro);
+            background: transparent;
+            color: var(--azul-escuro);
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .tab-link.active {
+            background: var(--azul-escuro);
+            color: var(--branco);
+        }
+
+        .painel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border: 2px solid var(--azul-claro);
+            padding: 15px;
+            border-radius: 12px;
+            background-color: #fbfcfd;
+        }
+
+        .col-full {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--cinza-texto);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #E1E8ED;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: #FAFBFC;
+            box-sizing: border-box;
+        }
+
+        .resumo-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .aluno-group {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            overflow: hidden;
+        }
+
+        .aluno-header {
+            background: #f8f9fa;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .parcelas-lista {
+            display: none;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .parcela-item {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+            padding: 10px;
+            border-bottom: 1px solid #f1f1f1;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .projeto-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--azul-escuro);
+            color: var(--amarelo-canaa);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            justify-self: start;
+            align-self: center;
+        }
+
+        .parcelas-header {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+            padding: 6px 10px;
+            background: #f0f4f8;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--cinza-texto);
+            text-transform: uppercase;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .area-botoes {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-gerar {
+            background: var(--azul-escuro);
+            color: var(--amarelo-canaa);
+            padding: 12px;
+            font-size: 14px;
+            flex: 2;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-limpar {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            flex: 1;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-imprimir {
+            background-color: var(--azul-claro);
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            flex: 1;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Carnê Style */
+        .carne-item {
+            background: white;
+            border: 1.5px solid #000;
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            min-height: 240px;
+            color: #000;
+            margin: 15px auto;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .canhoto {
+            width: 22%;
+            padding: 10px;
+            font-size: 9px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .corpo {
+            width: 78%;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .header-carne {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .area-pix {
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-left: auto;
+        }
+
+        .area-pix div svg {
+            width: 100px !important;
+            height: 100px !important;
+        }
+
+        .dna-text {
+            font-size: 7px;
+            margin-top: 4px;
+            display: block;
+            font-weight: bold;
+        }
+
+        .footer-carne {
+            text-align: center;
+            font-size: 8px;
+            color: #777;
+            font-style: italic;
+            margin-top: 10px;
+            width: 100%;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+        }
+
+        .modal-config {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 95%;
+            max-width: 500px;
+            border: 2px solid var(--azul-claro);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+        }
+
+        .footer-txt-site {
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            padding: 15px 0;
+        }
+
+        /* Loading Spinner */
+        .loading-bar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--azul-claro), var(--amarelo-canaa));
+            z-index: 9999;
+            animation: loading-slide 1.2s infinite;
+        }
+
+        @keyframes loading-slide {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* ── Novos estilos ── */
+        .vencida-badge {
+            display: inline-block; padding: 2px 7px; border-radius: 20px;
+            font-size: 9px; font-weight: 700; background: #E53E3E;
+            color: white; margin-left: 6px; vertical-align: middle;
+        }
+        .btn-editar, .btn-excluir {
+            border: none; border-radius: 6px; cursor: pointer;
+            padding: 4px 8px; font-size: 12px; margin-left: 4px;
+        }
+        .btn-editar { background: #e8f4fe; color: var(--azul-claro); }
+        .btn-excluir { background: #fde8e8; color: var(--vermelho); }
+        .btn-cancelar { background: #fff3cd; color: #856404; border: none;
+            border-radius: 4px; cursor: pointer; font-size: 10px;
+            margin-left: 2px; padding: 2px 5px; }
+        .btn-quitar { background: var(--verde); color: white; border: none;
+            border-radius: 6px; cursor: pointer; font-size: 11px;
+            padding: 3px 8px; margin-left: 8px; font-weight: bold; }
+        .lista-registros { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px;
+            max-height: 200px; overflow-y: auto; }
+        .lista-item { display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 4px; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+        .chart-container { margin-top: 20px; background: white;
+            border-radius: 12px; padding: 15px;
+            border: 1px solid #eee; }
+        .recibo-box { padding: 15px; border: 2px dashed #28a745;
+            border-radius: 10px; font-size: 13px; line-height: 1.8;
+            background: #f6fff8; }
+        @media print {
+
+            .no-print,
+            .overlay,
+            .modal-config,
+            .footer-txt-site {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .no-print { padding: 12px; border-radius: 10px; }
+            .resumo-cards { grid-template-columns: 1fr; }
+            .painel-grid { grid-template-columns: 1fr; }
+            .col-full { grid-column: span 1; }
+            .area-botoes { flex-direction: column; }
+            .btn-gerar, .btn-limpar, .btn-imprimir { flex: none; width: 100%; }
+            /* Parcela: esconde projeto e status, mostra parc/venc + valor + ações */
+            .parcela-item {
+                grid-template-columns: 1fr auto auto;
+            }
+            .parcela-item span:nth-child(2),
+            .parcela-item span:nth-child(4) { display: none; }
+            .parcelas-header { display: none; }
+            .aluno-header { font-size: 12px; }
+            .chart-container { padding: 8px; }
+            /* Filtros empilham */
+            #buscaAluno, #filtroProjeto, #filtroMes { min-width: 100% !important; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loading-bar" id="loadingBar"></div>
+    <div id="overlay" class="overlay" onclick="fecharTodosModais()"></div>
+
+    <div class="no-print">
+        <div class="site-header">
+            <img src="https://i.ibb.co/j94gMHsG/logo-escola.png" class="site-logo">
+            <h1 style="margin:0; font-size: 20px;">Gestão de Projetos Sociais</h1>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-link active" id="btn-tab-gerador" onclick="switchTab('gerador')">📋 Gerador de
+                Carnês</button>
+            <button class="tab-link" id="btn-tab-financeiro" onclick="switchTab('financeiro')">💰 Controle
+                Financeiro</button>
+        </div>
+        <div id="tab-gerador">
+            <div class="painel-grid">
+                <div class="col-full">
+                    <label>1. Projeto</label>
+                    <select id="selectProjeto"></select>
+                    <button onclick="abrirModalProjeto()"
+                        style="background:none; border:none; color:var(--azul-claro); cursor:pointer; font-size:10px; font-weight:bold; margin-top:5px;">+
+                        GERENCIAR PROJETOS</button>
+                </div>
+                <div class="col-full">
+                    <label>2. Selecionar Aluno</label>
+                    <select id="selectAluno" onchange="exibirPreview()"></select>
+                    <button onclick="abrirModalAluno()"
+                        style="background:none; border:none; color:var(--azul-claro); cursor:pointer; font-size:10px; font-weight:bold; margin-top:5px;">+
+                        GERENCIAR ALUNOS</button>
+                    <div id="previewCard"
+                        style="display:none; font-size:11px; margin-top:10px; padding:10px; background:#eef8ff; border-radius:8px; border-left:4px solid var(--azul-claro);">
+                        <b>ID:</b> <span id="resId"></span> | <b>RESP:</b> <span id="resNome"></span> | <b>CPF:</b>
+                        <span id="resCpf"></span> | <b>TEL:</b> <span id="resTel"></span>
+                    </div>
+                </div>
+                <div><label>Valor Mensal</label><input type="text" id="valorInput" oninput="mascaraMoeda(this)"
+                        placeholder="R$ 0,00"></div>
+                <div><label>Parcelas</label><input type="number" id="parcelas" value="1"></div>
+                <div class="col-full"><label>Data do 1º Vencimento</label><input type="date" id="primeiroVencimento">
+                </div>
+            </div>
+            <div class="area-botoes">
+                <button class="btn-gerar" onclick="gerarCarne()">🚀 GERAR E SALVAR</button>
+                <button class="btn-limpar" onclick="limparFormulario()">🧹 LIMPAR</button>
+                <button class="btn-imprimir" onclick="imprimirTudo()">🖨️ IMPRIMIR TODOS</button>
+            </div>
+            <div id="carne-container"></div>
+        </div>
+
+        <div id="tab-financeiro" style="display:none">
+            <div class="resumo-cards">
+                <div class="card" style="background:var(--azul-escuro)">Total: <span id="res-total">R$ 0,00</span></div>
+                <div class="card" style="background:var(--verde)">Pago: <span id="res-pago">R$ 0,00</span></div>
+                <div class="card" style="background:var(--vermelho)">Pend: <span id="res-pend">R$ 0,00</span></div>
+            </div>
+            <div style="margin-bottom:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <input type="text" id="buscaAluno" oninput="carregarFinanceiro()" placeholder="Nome ou ID..." style="flex:2; min-width:140px; padding:10px;">
+                <select id="filtroProjeto" onchange="carregarFinanceiro()" style="flex:1; min-width:130px; padding:10px;"></select>
+                <input type="month" id="filtroMes" onchange="carregarFinanceiro()" style="flex:1; min-width:130px; padding:10px;" title="Filtrar por mês">
+                <button onclick="exportarCSV()" style="background:var(--azul-escuro); color:var(--amarelo-canaa); border:none; border-radius:8px; padding:10px 14px; cursor:pointer; font-weight:bold; white-space:nowrap;">⬇️ CSV</button>
+            </div>
+            <div style="margin-bottom:8px;">
+                <button onclick="toggleGrafico()" id="btnGrafico" style="background:var(--azul-escuro); color:var(--amarelo-canaa); border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-weight:bold; font-size:12px;">📊 Ver Gráfico de Arrecadação</button>
+            </div>
+            <div class="chart-container" id="graficoContainer" style="display:none; transition: all 0.3s ease;">
+                <canvas id="graficoFinanceiro" height="100"></canvas>
+            </div>
+            <div id="listaAgrupada" style="margin-top:15px;"></div>
+        </div>
+    </div>
+
+    <footer class="footer-txt-site">Sistema de Gerenciamento de Projetos desenvolvido por Luan Costa</footer>
+
+    <div id="modalVisualizar" class="modal-config" style="max-width:880px">
+        <div id="conteudoCarnePopup"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="imprimirUnico()" class="btn-imprimir" style="flex:1">🖨️ Imprimir Este</button>
+            <button onclick="fecharTodosModais()"
+                style="flex:1; border:none; background:#eee; border-radius:10px; cursor:pointer; font-weight:bold;">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalRecibo" class="modal-config">
+        <h3 style="color:var(--verde);">✅ Pagamento Registrado</h3>
+        <div id="conteudoRecibo" class="recibo-box"></div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button onclick="imprimirRecibo()" class="btn-imprimir" style="flex:1">🖨️ Imprimir Recibo</button>
+            <button onclick="fecharTodosModais()" style="flex:1; border:none; background:#eee; border-radius:10px; cursor:pointer; font-weight:bold;">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalProjeto" class="modal-config">
+        <h3 id="tituloProjeto">Novo Projeto</h3>
+        <input type="hidden" id="escId">
+        <input type="text" id="escNome" placeholder="Nome do Projeto"><br><br>
+        <input type="text" id="escPix" placeholder="Chave Pix">
+        <button onclick="salvarProjeto()" class="btn-gerar" style="width:100%; margin-top:15px" id="btnSalvarProjeto">Salvar</button>
+        <div class="lista-registros">
+            <b style="font-size:12px; color:var(--cinza-texto);">PROJETOS CADASTRADOS</b>
+            <div id="listaProjetos" style="margin-top:8px;"></div>
+        </div>
+    </div>
+
+    <div id="modalAluno" class="modal-config">
+        <h3 id="tituloAluno">Novo Aluno</h3>
+        <input type="hidden" id="alunoId">
+        <input type="text" id="cadAlu" placeholder="Criança"><br><br>
+        <input type="text" id="cadResp" placeholder="Responsável"><br><br>
+        <input type="text" id="cadCpf" placeholder="CPF" oninput="mascaraCPF(this)"><br><br>
+        <input type="text" id="cadTel" placeholder="Telefone" oninput="mascaraTel(this)">
+        <button onclick="salvarAluno()" class="btn-gerar" style="width:100%; margin-top:15px" id="btnSalvarAluno">Salvar</button>
+        <div class="lista-registros">
+            <b style="font-size:12px; color:var(--cinza-texto);">ALUNOS CADASTRADOS</b>
+            <div id="listaAlunosModal" style="margin-top:8px;"></div>
+        </div>
+    </div>
+
+    <iframe id="printFrame" style="display:none;"></iframe>
+
+    <script>
+        // ── Supabase ────────────────────────────────────────────────
+        const SUPABASE_URL = 'https://pckpfawvefcilatfwmqz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_xUKjISLq2b-bKE2A_WmI_w_ueL5E7Ol';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const LOGO_URL = 'https://i.ibb.co/j94gMHsG/logo-escola.png';
+
+        let alunosCache = [];
+        let grafico = null;
+        let editProjetoId = null;
+        let editAlunoId = null;
+
+        // ── Loading ─────────────────────────────────────────────────
+        function setLoading(on) {
+            document.getElementById('loadingBar').style.display = on ? 'block' : 'none';
+        }
+
+        // ── Init ────────────────────────────────────────────────────
+        window.onload = async () => {
+            await Promise.all([carregarProjetos(), carregarAlunos()]);
+        };
+
+        // ── Máscaras ────────────────────────────────────────────────
+        function mascaraMoeda(i) { let v = i.value.replace(/\D/g, ''); v = (v / 100).toFixed(2).replace('.', ',').replace(/(\d)(\d{3}),/g, '$1.$2,'); i.value = 'R$ ' + v; }
+        function mascaraCPF(i) { i.value = i.value.replace(/\D/g, '').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); }
+        function mascaraTel(i) { i.value = i.value.replace(/\D/g, '').replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2'); }
+
+        // ── Modais ──────────────────────────────────────────────────
+        function abrirModal(id) {
+            const modal = document.getElementById(id);
+            modal.querySelectorAll('input:not([type=hidden])').forEach(i => i.value = '');
+            modal.style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+        function fecharTodosModais() {
+            document.querySelectorAll('.modal-config').forEach(m => m.style.display = 'none');
+            document.getElementById('overlay').style.display = 'none';
+            editProjetoId = null;
+            editAlunoId = null;
+        }
+
+        function limparFormulario() {
+            ['valorInput','parcelas','primeiroVencimento','selectProjeto','selectAluno']
+                .forEach(id => document.getElementById(id).value = id === 'parcelas' ? '1' : '');
+            document.getElementById('previewCard').style.display = 'none';
+            document.getElementById('carne-container').innerHTML = '';
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tab-gerador').style.display = tab === 'gerador' ? 'block' : 'none';
+            document.getElementById('tab-financeiro').style.display = tab === 'financeiro' ? 'block' : 'none';
+            document.querySelectorAll('.tab-link').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-tab-${tab}`).classList.add('active');
+            if (tab === 'financeiro') carregarFinanceiro();
+        }
+
+        // ── PROJETOS CRUD ───────────────────────────────────────────
+        async function abrirModalProjeto() {
+            editProjetoId = null;
+            document.getElementById('tituloProjeto').innerText = 'Novo Projeto';
+            document.getElementById('btnSalvarProjeto').innerText = 'Salvar';
+            abrirModal('modalProjeto');
+            await carregarListaProjetos();
+        }
+
+        async function salvarProjeto() {
+            const nome = document.getElementById('escNome').value.trim().toUpperCase();
+            const pix  = document.getElementById('escPix').value.trim();
+            if (!nome) return alert('Preencha o nome do projeto!');
+            setLoading(true);
+            let error;
+            if (editProjetoId) {
+                ({ error } = await sb.from('projetos').update({ nome, pix }).eq('id', editProjetoId));
+            } else {
+                ({ error } = await sb.from('projetos').insert({ nome, pix }));
+            }
+            setLoading(false);
+            if (error) return alert('Erro: ' + error.message);
+            editProjetoId = null;
+            document.getElementById('escNome').value = '';
+            document.getElementById('escPix').value = '';
+            document.getElementById('tituloProjeto').innerText = 'Novo Projeto';
+            document.getElementById('btnSalvarProjeto').innerText = 'Salvar';
+            await carregarProjetos();
+            await carregarListaProjetos();
+        }
+
+        async function carregarListaProjetos() {
+            const { data } = await sb.from('projetos').select('*').order('nome');
+            const lista = document.getElementById('listaProjetos');
+            if (!data || data.length === 0) { lista.innerHTML = '<i style="color:#aaa;font-size:12px;">Nenhum projeto cadastrado.</i>'; return; }
+            lista.innerHTML = data.map(p => `
+                <div class="lista-item">
+                    <span><b>${p.nome}</b> &nbsp;·&nbsp; <span style="color:#888;font-size:11px;">Pix: ${p.pix || 'não cadastrado'}</span></span>
+                    <div>
+                        <button class="btn-editar" onclick="editarProjeto(${p.id},'${p.nome.replace(/'/g,"\\'")}','${(p.pix||'').replace(/'/g,"\\'")}')">✏️ Editar</button>
+                        <button class="btn-excluir" onclick="excluirProjeto(${p.id})">🗑️</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function editarProjeto(id, nome, pix) {
+            editProjetoId = id;
+            document.getElementById('escNome').value = nome;
+            document.getElementById('escPix').value = pix;
+            document.getElementById('tituloProjeto').innerText = 'Editar Projeto';
+            document.getElementById('btnSalvarProjeto').innerText = '💾 Atualizar';
+        }
+
+        async function excluirProjeto(id) {
+            if (!confirm('Excluir este projeto? Os carnês existentes não serão afetados.')) return;
+            setLoading(true);
+            const { error } = await sb.from('projetos').delete().eq('id', id);
+            setLoading(false);
+            if (error) return alert('Erro: ' + error.message);
+            await carregarProjetos();
+            await carregarListaProjetos();
+        }
+
+        async function carregarProjetos() {
+            setLoading(true);
+            const { data, error } = await sb.from('projetos').select('*').order('nome');
+            setLoading(false);
+            if (error || !data) return;
+            const sel = document.getElementById('selectProjeto');
+            const fil = document.getElementById('filtroProjeto');
+            let h = '<option value="">-- Selecione --</option>';
+            let hf = '<option value="todos">Todos os Projetos</option>';
+            data.forEach(e => { h += `<option value="${e.nome}">${e.nome}</option>`; hf += `<option value="${e.nome}">${e.nome}</option>`; });
+            sel.innerHTML = h;
+            fil.innerHTML = hf;
+        }
+
+        // ── ALUNOS CRUD ─────────────────────────────────────────────
+        async function abrirModalAluno() {
+            editAlunoId = null;
+            document.getElementById('tituloAluno').innerText = 'Novo Aluno';
+            document.getElementById('btnSalvarAluno').innerText = 'Salvar';
+            abrirModal('modalAluno');
+            await carregarListaAlunos();
+        }
+
+        async function salvarAluno() {
+            const nome = document.getElementById('cadAlu').value.trim();
+            const resp = document.getElementById('cadResp').value.trim();
+            const cpf  = document.getElementById('cadCpf').value.trim();
+            const tel  = document.getElementById('cadTel').value.trim();
+            if (!nome) return alert('Preencha o nome da criança!');
+            setLoading(true);
+            let error;
+            if (editAlunoId) {
+                ({ error } = await sb.from('alunos').update({ nome, resp, cpf, tel }).eq('id', editAlunoId));
+            } else {
+                const { data: ultimo } = await sb.from('alunos').select('codigo').order('id', { ascending: false }).limit(1);
+                const proxNum = ultimo && ultimo.length > 0 ? parseInt(ultimo[0].codigo) + 1 : 1;
+                const codigo = proxNum.toString().padStart(3, '0');
+                ({ error } = await sb.from('alunos').insert({ codigo, nome, resp, cpf, tel }));
+            }
+            setLoading(false);
+            if (error) return alert('Erro: ' + error.message);
+            editAlunoId = null;
+            document.getElementById('tituloAluno').innerText = 'Novo Aluno';
+            document.getElementById('btnSalvarAluno').innerText = 'Salvar';
+            ['cadAlu','cadResp','cadCpf','cadTel'].forEach(id => document.getElementById(id).value = '');
+            await carregarAlunos();
+            await carregarListaAlunos();
+        }
+
+        async function carregarListaAlunos() {
+            const { data } = await sb.from('alunos').select('*').order('codigo');
+            const lista = document.getElementById('listaAlunosModal');
+            if (!data || data.length === 0) { lista.innerHTML = '<i style="color:#aaa;font-size:12px;">Nenhum aluno cadastrado.</i>'; return; }
+            lista.innerHTML = data.map(a => `
+                <div class="lista-item">
+                    <span><b>${a.codigo}</b> — ${a.nome} <span style="color:#888;font-size:11px;">(${a.resp || 'sem resp.'})</span></span>
+                    <div>
+                        <button class="btn-editar" onclick="editarAluno(${a.id},'${a.nome.replace(/'/g,"\\'")}','${(a.resp||'').replace(/'/g,"\\'")}','${a.cpf||''}','${a.tel||''}')">✏️</button>
+                        <button class="btn-excluir" onclick="excluirAluno(${a.id})">🗑️</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function editarAluno(id, nome, resp, cpf, tel) {
+            editAlunoId = id;
+            document.getElementById('cadAlu').value = nome;
+            document.getElementById('cadResp').value = resp;
+            document.getElementById('cadCpf').value = cpf;
+            document.getElementById('cadTel').value = tel;
+            document.getElementById('tituloAluno').innerText = 'Editar Aluno';
+            document.getElementById('btnSalvarAluno').innerText = '💾 Atualizar';
+        }
+
+        async function excluirAluno(id) {
+            if (!confirm('Excluir este aluno? Os carnês existentes não serão afetados.')) return;
+            setLoading(true);
+            const { error } = await sb.from('alunos').delete().eq('id', id);
+            setLoading(false);
+            if (error) return alert('Erro: ' + error.message);
+            await carregarAlunos();
+            await carregarListaAlunos();
+        }
+
+        async function carregarAlunos() {
+            setLoading(true);
+            const { data, error } = await sb.from('alunos').select('*').order('codigo');
+            setLoading(false);
+            if (error || !data) return;
+            alunosCache = data;
+            const sel = document.getElementById('selectAluno');
+            sel.innerHTML = '<option value="">-- Selecione --</option>';
+            data.forEach((a, i) => sel.innerHTML += `<option value="${i}">${a.codigo} - ${a.nome}</option>`);
+        }
+
+        function exibirPreview() {
+            const idx = document.getElementById('selectAluno').value;
+            if (idx === '') return (document.getElementById('previewCard').style.display = 'none');
+            const a = alunosCache[parseInt(idx)];
+            if (!a) return;
+            document.getElementById('resId').innerText  = a.codigo;
+            document.getElementById('resNome').innerText = a.resp || '---';
+            document.getElementById('resCpf').innerText  = a.cpf  || '---';
+            document.getElementById('resTel').innerText  = a.tel  || '---';
+            document.getElementById('previewCard').style.display = 'block';
+        }
+
+        // ── FINANCEIRO ──────────────────────────────────────────────
+        async function carregarFinanceiro() {
+            const container  = document.getElementById('listaAgrupada');
+            const busca      = document.getElementById('buscaAluno').value.toLowerCase();
+            const projFiltro = document.getElementById('filtroProjeto').value;
+            const mesFiltro  = document.getElementById('filtroMes').value; // "YYYY-MM"
+            setLoading(true);
+            let query = sb.from('financeiro').select('*').order('id');
+            if (projFiltro && projFiltro !== 'todos') query = query.eq('projeto', projFiltro);
+            const { data: fin, error } = await query;
+            setLoading(false);
+            if (error) { console.error(error); return; }
+
+            const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+            // Normaliza de Supabase → formato original
+            const norm = p => ({
+                id: p.aluno_codigo, aluno: p.aluno_nome, resp: p.resp, cpf: p.cpf, tel: p.tel,
+                projeto: p.projeto, pix: p.pix, valor: p.valor, vencimento: p.vencimento,
+                dna: p.dna, parc: p.parc, pago: p.pago
+            });
+
+            // Filtro de mês (vencimento no formato DD/MM/YYYY)
+            const finFiltrado = fin.filter(p => {
+                if (!mesFiltro) return true;
+                const partes = p.vencimento.split('/');
+                if (partes.length < 3) return true;
+                const mes  = partes[1].padStart(2,'0');
+                const ano  = partes[2];
+                return `${ano}-${mes}` === mesFiltro;
+            });
+
+            container.innerHTML = '';
+            let somaT = 0, somaPa = 0, somaPe = 0;
+            const dados_grafico = {};
+
+            const grupos = finFiltrado.reduce((acc, item) => {
+                const nome = item.aluno_nome;
+                if (!acc[nome]) acc[nome] = [];
+                acc[nome].push(item);
+                return acc;
+            }, {});
+
+            Object.keys(grupos).forEach(nomeAlu => {
+                const parcelasAlu = grupos[nomeAlu];
+                const p0 = parcelasAlu[0];
+                if (!nomeAlu.toLowerCase().includes(busca) && !p0.aluno_codigo.includes(busca)) return;
+
+                const projetosUnicos = [...new Set(parcelasAlu
+                    .filter(p => projFiltro === 'todos' || p.projeto === projFiltro)
+                    .map(p => p.projeto))];
+                const badgesHeader = projetosUnicos.map(pr => `<span class="projeto-badge">${pr}</span>`).join(' ');
+
+                // DNA das pendentes para o botão "Quitar Tudo"
+                const dnasPendentes = parcelasAlu
+                    .filter(p => !p.pago && (projFiltro === 'todos' || p.projeto === projFiltro))
+                    .map(p => p.dna);
+
+                let htmlParcelas = '';
+                let temNoProjeto = false;
+
+                parcelasAlu.forEach(p => {
+                    if (projFiltro !== 'todos' && p.projeto !== projFiltro) return;
+                    temNoProjeto = true;
+                    const valNum = parseFloat(p.valor.replace('R$ ','').replace(/\./g,'').replace(',','.'));
+                    somaT += valNum;
+                    if (p.pago) somaPa += valNum; else somaPe += valNum;
+
+                    // Dados para o gráfico (por mês)
+                    const partes = p.vencimento.split('/');
+                    if (partes.length === 3) {
+                        const chave = `${partes[1]}/${partes[2]}`;
+                        if (!dados_grafico[chave]) dados_grafico[chave] = { pago: 0, pend: 0 };
+                        if (p.pago) dados_grafico[chave].pago += valNum; else dados_grafico[chave].pend += valNum;
+                    }
+
+                    // Detecta vencimento
+                    let vencida = false;
+                    if (!p.pago && partes.length === 3) {
+                        const dVenc = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+                        if (dVenc < hoje) vencida = true;
+                    }
+
+                    const itemNorm = norm(p);
+                    const badgeVencida = vencida ? '<span class="vencida-badge">VENCIDA</span>' : '';
+                    const statusTxt = p.pago ? '✅ Pago' : (vencida ? '🔴 Vencida' : '⏳ Pendente');
+                    const corStatus  = p.pago ? 'green' : (vencida ? '#E53E3E' : '#aaa');
+
+                    htmlParcelas += `<div class="parcela-item">
+                        <span><b>${p.parc}</b> - ${p.vencimento}${badgeVencida}</span>
+                        <span class="projeto-badge">${p.projeto}</span>
+                        <span style="color:${p.pago ? 'green' : 'red'}">${p.valor}</span>
+                        <span style="color:${corStatus}; font-weight:bold; font-size:11px;">${statusTxt}</span>
+                        <div>
+                            <button onclick='abrirPopupCarne(${JSON.stringify(itemNorm)})' style="cursor:pointer;font-size:10px;padding:2px 5px">📄 Ver</button>
+                            ${!p.pago ? `<button onclick="darBaixa('${p.dna}')" style="background:var(--verde);color:white;border:none;cursor:pointer;font-size:10px;margin-left:2px;border-radius:4px;padding:2px 5px">Pagar</button>` : `<button class="btn-cancelar" onclick="reverterBaixa('${p.dna}')">↩ Cancelar</button>`}
+                        </div>
+                    </div>`;
+                });
+
+                if (!temNoProjeto) return;
+
+                const btnQuitar = dnasPendentes.length > 0
+                    ? `<button class="btn-quitar" onclick="quitarTudo('${nomeAlu.replace(/'/g,"\\'")}',${JSON.stringify(dnasPendentes)})">💰 Quitar Tudo</button>`
+                    : '';
+
+                const headerParcelas = `<div class="parcelas-header">
+                    <span>Parcela / Venc.</span><span>Projeto</span><span>Valor</span><span>Status</span><span>Ações</span>
+                </div>`;
+                container.innerHTML += `<div class="aluno-group">
+                    <div class="aluno-header" onclick="toggleParcelas(this)">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span>ID: ${p0.aluno_codigo} — ${nomeAlu}</span>${badgesHeader}${btnQuitar}
+                        </div>
+                        <span style="font-size:9px;color:var(--azul-claro);white-space:nowrap;">Parcelas ▾</span>
+                    </div>
+                    <div class="parcelas-lista" style="display:none;">${headerParcelas}${htmlParcelas}</div>
+                </div>`;
+            });
+
+            document.getElementById('res-total').innerText = somaT.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            document.getElementById('res-pago').innerText  = somaPa.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            document.getElementById('res-pend').innerText  = somaPe.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+            renderizarGrafico(dados_grafico);
+        }
+
+        async function darBaixa(dna) {
+            if (!confirm('Confirmar pagamento desta parcela?')) return;
+            setLoading(true);
+            const { data: parcelas } = await sb.from('financeiro').select('*').eq('dna', dna);
+            const { error } = await sb.from('financeiro').update({ pago: true }).eq('dna', dna);
+            setLoading(false);
+            if (error) return alert('Erro ao registrar pagamento: ' + error.message);
+            if (parcelas && parcelas[0]) mostrarRecibo(parcelas[0]);
+            carregarFinanceiro();
+        }
+
+        async function reverterBaixa(dna) {
+            if (!confirm('Cancelar este pagamento e marcar como pendente?')) return;
+            setLoading(true);
+            const { error } = await sb.from('financeiro').update({ pago: false }).eq('dna', dna);
+            setLoading(false);
+            if (error) return alert('Erro: ' + error.message);
+            carregarFinanceiro();
+        }
+
+        async function quitarTudo(nomeAlu, dnas) {
+            if (!confirm(`Quitar TODAS as ${dnas.length} parcelas pendentes de "${nomeAlu}"?`)) return;
+            setLoading(true);
+            const { error } = await sb.from('financeiro').update({ pago: true }).in('dna', dnas);
+            setLoading(false);
+            if (error) return alert('Erro: ' + error.message);
+            carregarFinanceiro();
+        }
+
+        function mostrarRecibo(p) {
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+            document.getElementById('conteudoRecibo').innerHTML = `
+                <b>RECIBO DE PAGAMENTO</b><br><br>
+                📅 <b>Data:</b> ${dataHoje}<br>
+                🎓 <b>Aluno:</b> ${p.aluno_nome}<br>
+                👤 <b>Responsável:</b> ${p.resp || '---'}<br>
+                📚 <b>Projeto:</b> ${p.projeto}<br>
+                📄 <b>Parcela:</b> ${p.parc}<br>
+                📆 <b>Vencimento:</b> ${p.vencimento}<br>
+                💵 <b>Valor Pago:</b> <span style="font-size:16px;color:var(--verde);font-weight:bold">${p.valor}</span><br><br>
+                <span style="font-size:11px;color:#888;">Ref.: ${p.dna}</span>
+            `;
+            abrirModal('modalRecibo');
+        }
+
+        function imprimirRecibo() {
+            dispararImpressao(document.getElementById('conteudoRecibo').outerHTML);
+        }
+
+        // ── EXPORTAR CSV ────────────────────────────────────────────
+        async function exportarCSV() {
+            setLoading(true);
+            const { data, error } = await sb.from('financeiro').select('*').order('id');
+            setLoading(false);
+            if (error || !data) return alert('Erro ao exportar.');
+            const cols = ['aluno_codigo','aluno_nome','resp','cpf','tel','projeto','valor','vencimento','parc','pago'];
+            const header = ['ID','Aluno','Responsável','CPF','Telefone','Projeto','Valor','Vencimento','Parcela','Pago'];
+            const linhas = [header.join(';')];
+            data.forEach(row => linhas.push(cols.map(c => `"${row[c]||''}"`).join(';')));
+            const blob = new Blob(['\uFEFF' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `financeiro_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        // ── GRÁFICO ─────────────────────────────────────────────────
+        function toggleGrafico() {
+            const container = document.getElementById('graficoContainer');
+            const btn = document.getElementById('btnGrafico');
+            const visible = container.style.display !== 'none';
+            container.style.display = visible ? 'none' : 'block';
+            btn.innerText = visible ? '📊 Ver Gráfico de Arrecadação' : '📉 Ocultar Gráfico';
+        }
+
+        function renderizarGrafico(dados) {
+            const labels = Object.keys(dados).sort((a,b) => {
+                const [ma,aa] = a.split('/'); const [mb,ab] = b.split('/');
+                return new Date(`${aa}-${ma}-01`) - new Date(`${ab}-${mb}-01`);
+            });
+            const pagos = labels.map(l => dados[l].pago);
+            const pends = labels.map(l => dados[l].pend);
+            const ctx = document.getElementById('graficoFinanceiro').getContext('2d');
+            if (grafico) grafico.destroy();
+            grafico = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Pago', data: pagos, backgroundColor: '#28a745' },
+                        { label: 'Pendente', data: pends, backgroundColor: '#E53E3E' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' }, title: { display: true, text: 'Arrecadação Mensal (R$)' } },
+                    scales: { y: { ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') } } }
+                }
+            });
+        }
+
+        function toggleParcelas(el) {
+            const lista = el.nextElementSibling;
+            lista.style.display = lista.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // ── GERAR CARNÊ ─────────────────────────────────────────────
+        async function gerarCarne() {
+            const escNome = document.getElementById('selectProjeto').value;
+            const aluIdx  = document.getElementById('selectAluno').value;
+            const dataI   = document.getElementById('primeiroVencimento').value;
+            const valorT  = document.getElementById('valorInput').value;
+            if (!escNome || aluIdx === '' || !dataI) return alert('Preencha todos os campos!');
+            const aluno = alunosCache[parseInt(aluIdx)];
+            setLoading(true);
+            const { data: projetoArr } = await sb.from('projetos').select('*').eq('nome', escNome).limit(1);
+            setLoading(false);
+            if (!projetoArr || projetoArr.length === 0) return alert('Projeto não encontrado!');
+            const escola = projetoArr[0];
+            const numParcelas = parseInt(document.getElementById('parcelas').value);
+            document.getElementById('carne-container').innerHTML = '';
+            const limpar = t => t.normalize('NFD').replace(/[^A-Z0-9]/gi,'').toUpperCase();
+            const registros = [];
+            for (let i = 0; i < numParcelas; i++) {
+                let d = new Date(dataI + 'T00:00:00');
+                d.setMonth(d.getMonth() + i);
+                const dataF = d.toLocaleDateString('pt-BR');
+                const dna   = (limpar(escola.nome).substring(0,4) + limpar(aluno.nome).substring(0,10) + aluno.codigo + (d.getMonth()+1)).toUpperCase();
+                const item  = { id: aluno.codigo, aluno: aluno.nome, resp: aluno.resp, cpf: aluno.cpf, tel: aluno.tel, projeto: escola.nome, pix: escola.pix, valor: valorT, vencimento: dataF, dna, parc: `${i+1}/${numParcelas}`, pago: false };
+                registros.push({ aluno_codigo: aluno.codigo, aluno_nome: aluno.nome, resp: aluno.resp, cpf: aluno.cpf, tel: aluno.tel, projeto: escola.nome, pix: escola.pix, valor: valorT, vencimento: dataF, dna, parc: `${i+1}/${numParcelas}`, pago: false });
+                desenharNoContainer(item, document.getElementById('carne-container'));
+            }
+            setLoading(true);
+            const { error } = await sb.from('financeiro').insert(registros);
+            setLoading(false);
+            if (error) return alert('Erro ao salvar carnês: ' + error.message);
+            alert('Carnês gerados e salvos com sucesso!');
+        }
+
+        // ── DESENHAR CARNÊ ───────────────────────────────────────────
+        function abrirPopupCarne(item) {
+            const pop = document.getElementById('conteudoCarnePopup');
+            pop.innerHTML = '';
+            desenharNoContainer(item, pop);
+            abrirModal('modalVisualizar');
+        }
+
+        function desenharNoContainer(item, container) {
+            const idQr = `qr_${Math.random().toString(36).substr(2,9)}`;
+            container.innerHTML += `<div class="carne-item"><div class="canhoto"><img src="${LOGO_URL}" style="width:100%"><hr></div><div class="corpo"><div class="header-carne"><div>${item.projeto}</div><div style="font-size:10px;margin-left:15px;">MENSALIDADE ${item.parc}</div></div><div style="display:flex;justify-content:space-between"><div style="width:65%;font-size:11px;line-height:1.3"><strong>ID:</strong> ${item.id}<br><strong>ALUNO:</strong> ${item.aluno}<br><strong>RESPONSÁVEL:</strong> ${item.resp}<br><strong>CPF:</strong> ${item.cpf||'---'} | <strong>TEL:</strong> ${item.tel||'---'}<br><strong>VALOR:</strong> ${item.valor}<br><strong>VENC:</strong> ${item.vencimento}</div><div class="area-pix"><div id="${idQr}"></div><span class="dna-text">${item.dna}</span></div></div><div class="footer-carne">Sistema de Gerenciamento de Projetos desenvolvido por Luan Costa</div></div></div>`;
+            setTimeout(() => {
+                const valorN = parseFloat(item.valor.replace('R$ ','').replace(/\./g,'').replace(',','.'));
+                const format = (id,val) => id + String(val.length).padStart(2,'0') + val;
+                let p = format('00','01') + format('26', format('00','br.gov.bcb.pix') + format('01',item.pix)) + format('52','0000') + format('53','986') + format('54',valorN.toFixed(2)) + format('58','BR') + format('59','CANAA') + format('60','SAO LUIS') + format('62', format('05',item.dna)) + '6304';
+                let crc = 0xFFFF;
+                for (let k = 0; k < p.length; k++) { crc ^= p.charCodeAt(k) << 8; for (let j=0;j<8;j++) { if ((crc & 0x8000) !== 0) crc = (crc<<1)^0x1021; else crc<<=1; } }
+                const payload = p + (crc&0xFFFF).toString(16).toUpperCase().padStart(4,'0');
+                const qr = qrcode(0,'L'); qr.addData(payload); qr.make();
+                const qrDiv = document.getElementById(idQr);
+                if (qrDiv) qrDiv.innerHTML = qr.createSvgTag(3.5,3.5);
+            }, 150);
+        }
+
+        // ── IMPRESSÃO ────────────────────────────────────────────────
+        function imprimirUnico() { dispararImpressao(document.getElementById('conteudoCarnePopup').innerHTML); }
+        function imprimirTudo()  { dispararImpressao(document.getElementById('carne-container').innerHTML); }
+
+        function dispararImpressao(html) {
+            var O='\u003c',C='\u003e',S='/';
+            var estilos=['body{font-family:sans-serif;margin:0;padding:0}',
+                '.carne-item{display:flex;width:100%;border:1px solid #000;margin-bottom:20px;min-height:230px;page-break-inside:avoid;box-sizing:border-box}',
+                '.canhoto{width:22%;padding:10px;font-size:9px;border-right:1px dashed #000;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box}',
+                '.corpo{width:78%;padding:15px;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box}',
+                '.header-carne{display:flex;align-items:center;border-bottom:2px solid #000;padding-bottom:5px;margin-bottom:10px;font-size:16px;font-weight:bold}',
+                '.area-pix{text-align:center;width:130px;flex-shrink:0;margin-left:auto}',
+                '.area-pix svg{width:120px!important;height:120px!important;display:block;margin:0 auto}',
+                '.dna-text{font-size:7px;font-weight:bold;margin-top:2px;display:block;text-align:center;word-break:break-all}',
+                '.footer-carne{text-align:center;font-size:8px;color:#777;margin-top:10px;border-top:.5px solid #eee;padding-top:5px}',
+                '@page{margin:1cm}'].join(' ');
+            var conteudo = O+'!DOCTYPE html'+C+O+'html'+C+O+'head'+C+O+'meta charset="UTF-8"'+C+O+'style'+C+estilos+O+S+'style'+C+O+S+'head'+C+O+'body onload="window.print()"'+C+html+O+S+'body'+C+O+S+'html'+C;
+            var blob = new Blob([conteudo],{type:'text/html'});
+            var url = URL.createObjectURL(blob);
+            var frame = document.getElementById('printFrame');
+            frame.onload = function(){URL.revokeObjectURL(url);};
+            frame.src = url;
+        }
+
+    </script>
+</body>
+
+</html>
