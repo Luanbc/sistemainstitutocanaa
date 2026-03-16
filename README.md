@@ -112,5 +112,4 @@ sistemacanaa/
 
 ## 👨‍💻 Desenvolvido por
 
-**Luan Costa** — Sistema de Gerenciamento de Projetos Sociais  
-Instituto Social e Educacional Canaã · São Luís, MA
+**Luan Costa**
