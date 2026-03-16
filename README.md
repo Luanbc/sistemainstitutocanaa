@@ -1,4 +1,4 @@
-# 🏫 Sistema Canaã Gestão
+# 🏫 Sistema de Gerenciamento para os Projetos Sociais do Instituto Canaã
 
 Sistema de gerenciamento de projetos sociais desenvolvido para o **Instituto Social e Educacional Canaã**, com geração de carnês de mensalidade com QR Code PIX e controle financeiro completo.
 
