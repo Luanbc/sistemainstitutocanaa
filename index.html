@@ -24,6 +24,7 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--cinza-fundo);
             padding: 10px;
+            padding-bottom: 100px; /* Espaço para scroll no mobile */
             color: var(--azul-escuro);
             margin: 0;
             box-sizing: border-box;
@@ -803,15 +804,40 @@
         let editProjetoId = null;
         let editAlunoId = null;
 
-        // ── Auth ────────────────────────────────────────────────────
+        // ── Auth & Inatividade ──────────────────────────────────────
+        let timeoutInatividade;
+        function resetarTimerInatividade() {
+            clearTimeout(timeoutInatividade);
+            // 15 minutos = 15 * 60 * 1000 = 900000 ms
+            timeoutInatividade = setTimeout(async () => {
+                const { data } = await sb.auth.getSession();
+                if (data.session) {
+                    setLoading(true);
+                    await sb.auth.signOut();
+                    setLoading(false);
+                    document.getElementById('loginOverlay').style.display = 'flex';
+                    showAlert('Sessão expirada por inatividade. Por favor, faça login novamente.', 'warning');
+                }
+            }, 900000);
+        }
+
+        // Detecta qualquer interação do usuário
+        window.addEventListener('mousemove', resetarTimerInatividade);
+        window.addEventListener('keydown', resetarTimerInatividade);
+        window.addEventListener('click', resetarTimerInatividade);
+        window.addEventListener('scroll', resetarTimerInatividade);
+        window.addEventListener('touchstart', resetarTimerInatividade);
+
         async function verificarSessao() {
             setLoading(true);
             const { data } = await sb.auth.getSession();
             if (data.session) {
                 document.getElementById('loginOverlay').style.display = 'none';
+                resetarTimerInatividade(); // Inicia timer ao logar
                 await Promise.all([carregarProjetos(), carregarAlunos()]);
             } else {
                 document.getElementById('loginOverlay').style.display = 'flex';
+                clearTimeout(timeoutInatividade); // Pausa timer se deslogado
             }
             setLoading(false);
         }
@@ -902,17 +928,22 @@
                     if (novaSenha) {
                         setLoading(true);
                         const { error } = await sb.auth.updateUser({ password: novaSenha });
-                        setLoading(false);
 
                         if (error) {
+                            setLoading(false);
                             showAlert('Erro ao atualizar senha: ' + error.message, 'error');
+                            verificarSessao();
                         } else {
-                            showAlert('Senha atualizada com sucesso!', 'success');
+                            await sb.auth.signOut(); // Desloga o usuário forçadamente
+                            setLoading(false);
+                            showAlert('Senha atualizada com sucesso! Por favor, faça login com sua nova senha.', 'success');
                             // Limpa a URL
                             window.history.replaceState(null, null, window.location.pathname);
+                            document.getElementById('loginOverlay').style.display = 'flex';
                         }
+                    } else {
+                        verificarSessao();
                     }
-                    verificarSessao();
                 }, 500);
             } else {
                 await verificarSessao();
@@ -1269,11 +1300,15 @@
                     <span>Parcela / Venc.</span><span>Projeto</span><span>Valor</span><span>Status</span><span>Ações</span>
                 </div>`;
                 container.innerHTML += `<div class="aluno-group">
-                    <div class="aluno-header" onclick="toggleParcelas(this)">
-                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <span>ID: ${p0.aluno_codigo} — <b>${displayNome}</b></span>${displayTurma ? `<span class="projeto-badge" style="background-color: #6c757d; color: white;">Turma: ${displayTurma}</span>` : ''} ${badgesHeader}${btnQuitar}${btnExcluirTodos}
+                    <div class="aluno-header" onclick="toggleParcelas(this)" style="align-items: flex-start;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;padding-right:10px;">
+                            <span style="width:100%; display:block; margin-bottom: 4px;">ID: ${p0.aluno_codigo} — <b>${displayNome}</b></span>
+                            ${displayTurma ? `<span class="projeto-badge" style="background-color: #6c757d; color: white; margin-bottom: 4px;">Turma: ${displayTurma}</span>` : ''} 
+                            ${badgesHeader}
+                            ${btnQuitar}
+                            ${btnExcluirTodos}
                         </div>
-                        <span style="font-size:9px;color:var(--azul-claro);white-space:nowrap;">Parcelas ▾</span>
+                        <span style="font-size:11px;color:var(--azul-claro);white-space:nowrap;margin-top:2px;">Parcelas ▾</span>
                     </div>
                     <div class="parcelas-lista" style="display:none;">${headerParcelas}${htmlParcelas}</div>
                 </div>`;
