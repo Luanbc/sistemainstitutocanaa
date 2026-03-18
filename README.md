@@ -6,25 +6,35 @@ Sistema de gerenciamento de projetos sociais desenvolvido para o **Instituto Soc
 
 ## ✨ Funcionalidades
 
+### 🔒 Segurança e Acesso
+- Autenticação de usuários via Supabase (E-mail e Senha)
+- Recuperação de senha segura ("Esqueci minha senha")
+- Deslogamento automático após 15 minutos de inatividade
+- Proteção de rotas e interface sob tela de login
+
 ### 📋 Gerador de Carnês
 - Cadastro de projetos com chave PIX
 - Cadastro de alunos com código sequencial automático
 - Geração de carnês mensais com QR Code PIX (padrão Banco Central)
+- Opção de **Pular Mês** ao gerar as parcelas (útil para isenções)
 - Impressão individual ou em lote
 
 ### 💰 Controle Financeiro
-- Visualização agrupada por aluno com badge do projeto
+- Visualização agrupada por aluno com badge do projeto (Total, Pago, Pendente)
 - Indicador de status: ✅ Pago / ⏳ Pendente / 🔴 Vencida
 - Registro de pagamento com **recibo imprimível**
 - Cancelamento de baixa (reverter pagamento)
 - **Quitar Tudo** — paga todas as parcelas pendentes de um aluno de uma vez
+- **Excluir Todos** — exclui todas as parcelas em aberto de um aluno
 - Filtros por nome, projeto e mês de vencimento
-- Gráfico de arrecadação mensal (Pago vs Pendente)
-- Exportação para **CSV**
+- Gráfico de arrecadação mensal consolidado
+- Exportação de dados para **CSV**
 
-### ⚙️ Gerenciamento
-- Editar e excluir projetos e alunos
-- Lista de registros com edição inline nos modais
+### ⚙️ Interface e Experiência (UX/UI)
+- Design responsivo otimizado nativamente para uso em Celular/Mobile
+- Notificações, confirmações e popups modais elegantes via **SweetAlert2**
+- Menu de abas de navegação rápida e painéis estilo Dashboard
+- Gerenciamento de cadastros de Projetos e Alunos em modais
 
 ---
 
@@ -36,6 +46,7 @@ Sistema de gerenciamento de projetos sociais desenvolvido para o **Instituto Soc
 | Banco de dados | [Supabase](https://supabase.com) (PostgreSQL) |
 | QR Code PIX | [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) |
 | Gráficos | [Chart.js](https://www.chartjs.org/) |
+| UI/Popups | [SweetAlert2](https://sweetalert2.github.io/) |
 | Deploy | [Vercel](https://vercel.com) |
 
 ---
