@@ -1,124 +1,16 @@
-# 🏫 Sistema para o Gerenciamento de Projetos Sociais
+# React + Vite
 
-Sistema de gerenciamento de projetos sociais desenvolvido para o **Instituto Social e Educacional Canaã**, com geração de carnês de mensalidade com QR Code PIX e controle financeiro completo.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
----
+Currently, two official plugins are available:
 
-## ✨ Funcionalidades
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-### 🔒 Segurança e Acesso
-- Autenticação de usuários via Supabase (E-mail e Senha)
-- Recuperação de senha segura ("Esqueci minha senha")
-- Deslogamento automático após 15 minutos de inatividade
-- Proteção de rotas e interface sob tela de login
+## React Compiler
 
-### 📋 Gerador de Carnês
-- Cadastro de projetos com chave PIX
-- Cadastro de alunos com código sequencial automático
-- Geração de carnês mensais com QR Code PIX (padrão Banco Central)
-- Opção de **Pular Mês** ao gerar as parcelas (útil para isenções)
-- Impressão individual ou em lote
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### 💰 Controle Financeiro
-- Visualização agrupada por aluno com badge do projeto (Total, Pago, Pendente)
-- Indicador de status: ✅ Pago / ⏳ Pendente / 🔴 Vencida
-- Registro de pagamento com **recibo imprimível**
-- Cancelamento de baixa (reverter pagamento)
-- **Quitar Tudo** — paga todas as parcelas pendentes de um aluno de uma vez
-- **Excluir Todos** — exclui todas as parcelas em aberto de um aluno
-- Filtros por nome, projeto e mês de vencimento
-- Gráfico de arrecadação mensal consolidado
-- Exportação de dados para **CSV**
+## Expanding the ESLint configuration
 
-### ⚙️ Interface e Experiência (UX/UI)
-- Design responsivo otimizado nativamente para uso em Celular/Mobile
-- Notificações, confirmações e popups modais elegantes via **SweetAlert2**
-- Menu de abas de navegação rápida e painéis estilo Dashboard
-- Gerenciamento de cadastros de Projetos e Alunos em modais
-
----
-
-## 🛠️ Tecnologias
-
-| Camada | Tecnologia |
-|--------|------------|
-| Frontend | HTML5 + CSS3 + JavaScript (vanilla) |
-| Banco de dados | [Supabase](https://supabase.com) (PostgreSQL) |
-| QR Code PIX | [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) |
-| Gráficos | [Chart.js](https://www.chartjs.org/) |
-| UI/Popups | [SweetAlert2](https://sweetalert2.github.io/) |
-| Deploy | [Vercel](https://vercel.com) |
-
----
-
-## 🗄️ Estrutura do Banco (Supabase)
-
-```sql
--- Projetos (ex: Futsal, Dança, Inglês)
-create table projetos (
-  id   bigint generated always as identity primary key,
-  nome text not null,
-  pix  text
-);
-
--- Alunos cadastrados
-create table alunos (
-  id      bigint generated always as identity primary key,
-  codigo  text not null,
-  nome    text not null,
-  resp    text,
-  cpf     text,
-  tel     text
-);
-
--- Parcelas financeiras geradas
-create table financeiro (
-  id           bigint generated always as identity primary key,
-  aluno_codigo text,
-  aluno_nome   text,
-  resp         text,
-  cpf          text,
-  tel          text,
-  projeto      text,
-  pix          text,
-  valor        text,
-  vencimento   text,
-  dna          text unique,
-  parc         text,
-  pago         boolean default false
-);
-```
-
----
-
-## 🚀 Como rodar localmente
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/Luanbc/sistemacanaa.git
-   ```
-
-2. Abra `index.html` com um servidor local (ex: [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) no VS Code)
-
-3. Configure suas credenciais Supabase em `index.html`:
-   ```js
-   const SUPABASE_URL = 'sua_url_aqui';
-   const SUPABASE_KEY = 'sua_anon_key_aqui';
-   ```
-
----
-
-## 📁 Estrutura de Arquivos
-
-```
-sistemacanaa/
-├── index.html      # Aplicação completa (HTML + CSS + JS)
-├── vercel.json     # Configuração de deploy Vercel
-└── README.md
-```
-
----
-
-## 👨‍💻 Desenvolvido por
-
-**Luan Costa**
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

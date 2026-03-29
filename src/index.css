@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #F4F7F9;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* ============================
+   BORDAS GLOBAIS — DESIGN SHARP
+   ============================ */
+.rounded-\[2\.5rem\] { border-radius: 0.5rem !important; }
+.rounded-\[3rem\]    { border-radius: 0.5rem !important; }
+.rounded-\[2rem\]    { border-radius: 0.5rem !important; }
+.rounded-3xl         { border-radius: 0.5rem !important; }
+.rounded-2xl         { border-radius: 0.375rem !important; }
+.rounded-xl          { border-radius: 0.25rem !important; }
+.rounded-lg          { border-radius: 0.25rem !important; }
+.rounded-full        { border-radius: 9999px; } /* mantém pills e avatares */
+
+/* ============================
+   IMPRESSÃO - CARNÊS
+   ============================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    padding: 12mm 15mm !important;
+  }
+
+  body > * { display: none !important; }
+  #root { display: block !important; }
+  .no-print { display: none !important; }
+
+  main, .max-w-7xl {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .space-y-4.print\:space-y-0 { display: block !important; }
+
+  .carne-item {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 16px !important;
+    box-shadow: none !important;
+    border: 1.5px solid #000 !important;
+  }
+
+  img {
+    display: inline-block !important;
+    max-width: 100% !important;
+  }
+
+  .space-y-8 { gap: 0 !important; }
+}
+
+/* Contratos são impressos em janela separada - sem regras de @media print aqui */
+.only-print { display: none !important; }
