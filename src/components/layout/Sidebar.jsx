@@ -9,21 +9,14 @@ import {
 
 const navItems = [
   { name: 'Início', path: '/', icon: Home },
-  { name: 'Relatórios', path: '/relatorios', icon: BarChart3, isAdminOnly: true },
-  { name: 'Despesas', path: '/despesas', icon: Receipt, isAdminOnly: true },
-  { name: 'Alunos', path: '/alunos', icon: Users },
-  { name: 'Projetos', path: '/projetos', icon: FolderKanban, isAdminOnly: true },
+  { name: 'Acadêmico', path: '/alunos', icon: Users },
   { name: 'Financeiro', path: '/financeiro', icon: Wallet },
-  { name: 'Inadimplentes', path: '/inadimplentes', icon: AlertCircle },
-  { name: 'Ações', path: '/acoes', icon: Zap },
-  { name: 'Contratos', path: '/contratos', icon: FileText },
-  { name: 'Gerar Carnês', path: '/carnes', icon: FileText },
 ];
 
 const adminItems = [
-  { name: 'Logs', path: '/logs', icon: ClipboardList },
+  { name: 'Administrativo', path: '/administrativo', icon: Settings },
+  { name: 'Relatórios', path: '/relatorios', icon: BarChart3 },
   { name: 'Usuários', path: '/usuarios', icon: UserCog },
-  { name: 'Configurações', path: '/configuracoes', icon: Settings },
 ];
 
 export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
@@ -37,7 +30,7 @@ export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
     `flex items-center px-4 py-2.5 rounded-xl transition-all duration-300 font-medium whitespace-nowrap overflow-hidden ${!isExpanded ? 'justify-center px-3' : ''
     } ${isActive
       ? 'bg-azul-claro text-white shadow-md shadow-azul-claro/20'
-      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+      : 'text-slate-400 dark:text-slate-300 hover:bg-white/5 hover:text-white'
     }`;
 
   const content = (
@@ -47,7 +40,7 @@ export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
         <div className="flex items-center">
           <img src="https://i.ibb.co/XZ42Xw34/branca.png" alt="Logo" className="w-14 h-14 scale-[1.3] object-contain shrink-0 origin-left" />
           <div className={`flex flex-col transition-all duration-300 overflow-hidden ${isExpanded ? 'max-w-[150px] opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'}`}>
-            <span className="text-white font-bold text-base tracking-tight whitespace-nowrap">Instituto Social e Educacional Canaã</span>
+            <span className="text-white dark:text-slate-100 font-bold text-base tracking-tight whitespace-nowrap">Instituto Social e<br></br> Educacional Canaã</span>
             <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest leading-none mt-0.5">
             </span>
           </div>
@@ -61,7 +54,7 @@ export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
 
       {/* Main Nav */}
       <nav className="flex-1 p-3 space-y-0.5 mt-3 overflow-y-auto overflow-x-hidden">
-        <p className={`text-[9px] font-black uppercase text-gray-600 tracking-widest transition-all duration-300 overflow-hidden ${isExpanded ? 'h-3 opacity-100 mb-2 px-4' : 'h-0 opacity-0 mb-0 px-0'}`}>Menu</p>
+        <p className={`text-[9px] font-black uppercase text-gray-600 dark:text-slate-500 tracking-widest transition-all duration-300 overflow-hidden ${isExpanded ? 'h-3 opacity-100 mb-2 px-4' : 'h-0 opacity-0 mb-0 px-0'}`}>Menu</p>
         {filteredItems.map((item) => (
           <NavLink
             key={item.path}
@@ -82,7 +75,7 @@ export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
       {/* Admin Section */}
       {isAdmin && (
         <div className="p-3 border-t border-gray-700/50 space-y-0.5 overflow-x-hidden">
-          <p className={`text-[9px] font-black uppercase text-gray-600 tracking-widest transition-all duration-300 overflow-hidden ${isExpanded ? 'h-3 opacity-100 mb-2 px-4' : 'h-0 opacity-0 mb-0 px-0'}`}>Administração</p>
+          <p className={`text-[9px] font-black uppercase text-gray-600 dark:text-slate-500 tracking-widest transition-all duration-300 overflow-hidden ${isExpanded ? 'h-3 opacity-100 mb-2 px-4' : 'h-0 opacity-0 mb-0 px-0'}`}>Administração</p>
           {adminItems.map((item) => (
             <NavLink
               key={item.path}
@@ -112,8 +105,8 @@ export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
       )}
 
       {/* Developer Signature */}
-      <div className="mt-auto p-4 border-t border-gray-700/50 flex flex-col items-center justify-center text-center">
-        <p className={`text-[8px] font-black uppercase tracking-widest text-gray-600 transition-all duration-300 overflow-hidden ${isExpanded ? 'max-h-10 opacity-100' : 'max-h-0 opacity-0 m-0'}`}>Desenvolvido por</p>
+      <div className="mt-auto p-4 border-t border-gray-700/50 dark:border-slate-800 flex flex-col items-center justify-center text-center">
+        <p className={`text-[8px] font-black uppercase tracking-widest text-gray-600 dark:text-slate-500 transition-all duration-300 overflow-hidden ${isExpanded ? 'max-h-10 opacity-100' : 'max-h-0 opacity-0 m-0'}`}>Desenvolvido por</p>
         <p className={`text-[10px] font-black uppercase tracking-widest text-emerald-500 transition-all duration-300 overflow-hidden ${isExpanded ? 'max-h-10 opacity-100' : 'max-h-0 opacity-0 m-0'}`}>Luan Costa</p>
         {!isExpanded && (
           <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mt-1" title="Desenvolvido por Luan Costa">LC</p>
@@ -130,7 +123,7 @@ export function Sidebar({ isMobile, closeMenu, isCollapsed, toggleSidebar }) {
     <aside
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`${isExpanded ? 'w-60' : 'w-[72px]'} bg-azul-escuro shadow-xl min-h-screen flex flex-col no-print hidden md:flex sticky top-0 h-screen transition-all duration-300 ease-in-out relative group`}
+      className={`${isExpanded ? 'w-60' : 'w-[72px]'} bg-azul-escuro dark:bg-slate-950 dark:border-r dark:border-slate-800/50 shadow-xl min-h-screen flex flex-col no-print hidden md:flex sticky top-0 h-screen transition-all duration-300 ease-in-out relative group`}
     >
       {content}
     </aside>

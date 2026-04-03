@@ -19,9 +19,11 @@ export const AuthProvider = ({ children }) => {
         .eq('id', userId)
         .single();
       
-      if (!error) {
+      if (!error && data) {
         setProfile(data);
       }
+      // Always release loading, even if profile fetch fails
+      setLoading(false);
     };
 
     // Busca a sessão atual
@@ -91,11 +93,8 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (session && profile) {
-      setLoading(false);
-    }
-  }, [session, profile]);
+  // Loading is now released inside fetchProfile itself,
+  // so this secondary effect is no longer needed.
 
   const value = {
     session,

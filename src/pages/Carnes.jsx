@@ -169,10 +169,10 @@ export default function Carnes() {
       projeto: s.projeto,
       projeto_id: s.projeto_id,
       mes: s.mes,
-      mes_num: s.mes_num,
-      ano: s.ano,
+      mes_num: parseInt(s.mes_num),
+      ano: parseInt(s.ano),
       valor: s.valor,
-      pago: s.is_bolsista ? true : false, // Bolsista já nasce como pago/isento
+      pago: s.is_bolsista ? true : false,
       is_bolsista: s.is_bolsista,
       dna: s.dna,
       parc: s.parc,

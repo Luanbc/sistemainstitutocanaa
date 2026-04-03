@@ -31,7 +31,7 @@ export default function Layout() {
   const toggleSidebar = () => setIsCollapsed(prev => !prev);
 
   return (
-    <div className="flex min-h-screen bg-cinza-fundo font-inter">
+    <div className="flex min-h-screen bg-cinza-fundo dark:bg-slate-950 font-inter transition-colors duration-300">
       {/* Sidebar - Desktop (hidden on mobile) */}
       <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
 

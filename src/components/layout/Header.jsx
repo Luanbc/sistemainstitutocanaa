@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { supabase } from '../../lib/supabase';
-import { LogOut, Menu, Bell, AlertCircle, Clock, CheckCircle2, ArrowRight, X, Calendar } from 'lucide-react';
+import { LogOut, Menu, Bell, AlertCircle, Clock, CheckCircle2, ArrowRight, X, Calendar, Sun, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -101,6 +102,7 @@ function NotifSection({ title, color, items, onWhatsApp, onClear }) {
 export function Header({ toggleMobileMenu }) {
   const { user, profile } = useAuth();
   const { overdueNotifs, todayNotifs, soonNotifs, paidNotifs, unreadCount, totalNotifs, isOpen, toggleOpen, close, clearAll, clearNotification } = useNotifications();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -146,7 +148,7 @@ export function Header({ toggleMobileMenu }) {
   };
 
   return (
-    <header className="bg-white border-b border-gray-100 h-16 flex items-center justify-between px-4 md:px-8 shadow-sm no-print sticky top-0 z-40">
+    <header className="bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 h-16 flex items-center justify-between px-4 md:px-8 shadow-sm no-print sticky top-0 z-40 transition-colors duration-300">
       <div className="flex items-center gap-4">
         <button
           onClick={toggleMobileMenu}
@@ -154,12 +156,21 @@ export function Header({ toggleMobileMenu }) {
         >
           <Menu size={24} />
         </button>
-        <h1 className="text-base sm:text-xl font-bold text-azul-escuro hidden sm:block m-0 truncate max-w-[200px] md:max-w-none">
+        <h1 className="text-base sm:text-xl font-bold text-azul-escuro dark:text-white hidden sm:block m-0 truncate max-w-[200px] md:max-w-none">
           Instituto Canaã
         </h1>
       </div>
 
       <div className="flex items-center gap-4 md:gap-6">
+        {/* Toggle Dark Mode */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-gray-500 hover:text-azul-escuro hover:bg-gray-100 rounded-xl transition-all"
+          title={theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
+        >
+          {theme === 'light' ? <Moon size={20} /> : <Sun size={20} className="text-amarelo-canaa" />}
+        </button>
+
         {/* Sino de Notificações */}
         <div className="relative" ref={dropdownRef}>
           <button
@@ -267,10 +278,10 @@ export function Header({ toggleMobileMenu }) {
 
         <div className="flex items-center gap-3">
           <div className="flex flex-col text-right hidden md:block">
-            <span className="text-sm font-semibold text-azul-escuro leading-none">
+            <span className="text-sm font-semibold text-azul-escuro dark:text-slate-100 leading-none">
               {profile?.role === 'admin' ? 'Administrador' : 'Operador'}
             </span>
-            <br></br><span className="text-xs text-cinza-texto">{user?.email}</span>
+            <br></br><span className="text-xs text-cinza-texto dark:text-slate-400">{user?.email}</span>
           </div>
           <button
             onClick={handleLogout}
