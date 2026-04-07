@@ -314,7 +314,7 @@ export default function Financial() {
         break;
     }
 
-    let msg = intro + `\n\nAcesse seu boleto digital seguro para ver todas as informações, QR Code PIX:\n\n👉 *https://gestaocanaa.vercel.app/boleto/${pay.id}*\n\nAgradecemos a parceria!`;
+    let msg = intro + `\n\nAcesse seu boleto digital seguro para ver todas as informações, QR Code PIX:\n\n👉 *https://gestaocanaa.pages.dev/boleto/${pay.id}*\n\nAgradecemos a parceria!`;
     const url = `https://api.whatsapp.com/send?phone=55${phone}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   }
