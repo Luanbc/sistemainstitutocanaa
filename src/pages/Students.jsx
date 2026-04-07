@@ -16,6 +16,18 @@ function getProjectType(name = '') {
   return 'generic';
 }
 
+function calculateAge(birthDate) {
+  if (!birthDate) return '';
+  const birth = new Date(birthDate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age >= 0 ? age : '';
+}
+
 function Field({ val, minW = 150, grow = false }) {
   const hasValue = !!val && val !== '' && val !== ' ';
   return (
@@ -137,11 +149,9 @@ function ContratoDoc({ student, project, allStudents = [], allProjects = [], pro
       </Row>
       <Row>
         <Lbl>PAI:</Lbl><Field val={paiVal} minW={300} grow />
-        <Lbl>CPF:</Lbl><Field val={student?.pai_cpf} minW={140} />
       </Row>
       <Row>
         <Lbl>MÃE:</Lbl><Field val={maeVal} minW={300} grow />
-        <Lbl>CPF:</Lbl><Field val={student?.mae_cpf} minW={140} />
       </Row>
 
       <SecTitle>ESCOLARIDADE:</SecTitle>
@@ -617,14 +627,14 @@ export default function Students() {
       codigo, nome, data_nascimento, sexo,
       endereco, numero, bairro, cidade, uf, cep,
       pai, mae, resp, parentesco, cpf, tel,
-      matricula_escola: aluno_de_fora === 'Não' ? 'INSTITUTO SOCIAL E EDUCACIONAL CANAÃ' : matricula_escola,
+      matricula_escola: matricula_escola,
       turma, turno, serie, aluno_de_fora,
-      irmao_id: hasIrmao ? irmaoId : null,
-      instrumento: selectedProjectIds.some(pid => getProjectType(projects.find(p => p.id === pid)?.nome) === 'musica') ? instrumento : null,
-      projeto_turno,
-      projeto_horario,
-      pai_cpf,
-      mae_cpf
+      irmao_id: null,
+      instrumento: null,
+      projeto_turno: null, // Removido do formulário simplificado
+      projeto_horario: null, // Removido do formulário simplificado
+      pai_cpf: null,
+      mae_cpf: null
     };
 
 
@@ -1255,45 +1265,70 @@ export default function Students() {
                 <p className="text-[10px] font-black uppercase tracking-widest text-azul-claro dark:text-azul-claro/80 border-b border-azul-claro/20 pb-1 mb-3">Dados do Aluno</p>
               </div>
 
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Nome Completo *</label>
-                <input type="text" value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: João da Silva Santos" required
-                  className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all" />
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:col-span-2">
+                <div className="space-y-1.5 md:col-span-1">
+                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Matrícula</label>
+                  <input type="text" value={codigo} onChange={e => setCodigo(e.target.value)} placeholder="CAN-00"
+                    className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-mono font-bold transition-all" />
+                </div>
+
+                <div className="space-y-1.5 md:col-span-3">
+                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Nome Completo do Aluno *</label>
+                  <input type="text" value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: João da Silva Santos" required
+                    className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all" />
+                </div>
               </div>
 
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Aluno de Fora da Instituição?</label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Data de Nascimento</label>
+                  <input type="date" value={data_nascimento} onChange={e => setDataNascimento(e.target.value)}
+                    className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Idade (Visualização)</label>
+                  <input type="text" value={calculateAge(data_nascimento)} readOnly
+                    className="w-full p-3 bg-gray-100 dark:bg-slate-700 border-2 border-transparent dark:border-slate-600 rounded-xl text-gray-500 dark:text-gray-400 font-bold text-center cursor-not-allowed transition-all" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Sexo</label>
+                  <select value={sexo} onChange={e => setSexo(e.target.value)}
+                    className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all">
+                    <option value="" className="dark:bg-slate-800">Selecione...</option>
+                    <option value="Masculino" className="dark:bg-slate-800">Masculino</option>
+                    <option value="Feminino" className="dark:bg-slate-800">Feminino</option>
+                    <option value="Outro" className="dark:bg-slate-800">Outro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Já é aluno da Instituição?</label>
                 <div className="flex gap-6 mt-1 p-2 bg-gray-50 dark:bg-slate-800/50 border-2 border-transparent dark:border-slate-700 rounded-xl transition-all">
                   <label className="flex items-center gap-2 cursor-pointer font-bold text-azul-escuro dark:text-slate-200 text-sm hover:opacity-80 transition-opacity">
-                    <input type="radio" name="aluno_de_fora" value="Sim" checked={aluno_de_fora === 'Sim'} onChange={(e) => setAlunoDeFora(e.target.value)} className="w-4 h-4 accent-azul-claro cursor-pointer" />
-                    Sim
+                    <input type="radio" name="aluno_de_fora" value="Não" checked={aluno_de_fora === 'Não'} onChange={(e) => setAlunoDeFora(e.target.value)} className="w-4 h-4 accent-azul-claro cursor-pointer" />
+                    Sim (Canaã)
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer font-bold text-azul-escuro dark:text-slate-200 text-sm hover:opacity-80 transition-opacity">
-                    <input type="radio" name="aluno_de_fora" value="Não" checked={aluno_de_fora === 'Não'} onChange={(e) => setAlunoDeFora(e.target.value)} className="w-4 h-4 accent-azul-claro cursor-pointer" />
-                    Não
+                    <input type="radio" name="aluno_de_fora" value="Sim" checked={aluno_de_fora === 'Sim'} onChange={(e) => setAlunoDeFora(e.target.value)} className="w-4 h-4 accent-azul-claro cursor-pointer" />
+                    Não (Externo)
                   </label>
                 </div>
               </div>
 
-              {/* ── CONTEXTO DA ESCOLA ── */}
-              {aluno_de_fora === 'Não' ? (
-                <div className="md:col-span-2 space-y-1.5 bg-azul-claro/5 dark:bg-blue-900/10 p-4 rounded-xl border border-azul-claro/10 dark:border-blue-900/30 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Matrícula da Instituição *</label>
-                  <div className="relative">
-                    <Hash className="absolute left-3 top-3.5 text-azul-claro" size={16} />
-                    <input type="text" value={codigo} onChange={e => setCodigo(e.target.value)} placeholder="Digite o código interno..." required={aluno_de_fora === 'Não'}
-                      className="w-full pl-10 pr-4 py-3.5 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-mono font-bold transition-all" />
-                  </div>
-                </div>
-              ) : (
-                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/10 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-500/10 dark:border-emerald-900/30 animate-in fade-in duration-300">
-                  <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-xs font-black uppercase tracking-wider text-emerald-600/60 dark:text-emerald-400/60">Nome da Escola Externa *</label>
-                    <input type="text" value={matricula_escola} onChange={e => setMatriculaEscola(e.target.value)} placeholder="Onde o aluno estuda?"
-                      className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-emerald-500 dark:text-white font-bold shadow-sm transition-all" required={aluno_de_fora === 'Sim'} />
-                  </div>
-                </div>
-              )}
+              {/* ── ESCOLARIDADE ── */}
+              <div className="md:col-span-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-azul-claro dark:text-azul-claro/80 border-b border-azul-claro/20 pb-1 mb-3 mt-2 font-mono">Escolaridade</p>
+              </div>
+
+              <div className="md:col-span-2 space-y-1.5 bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 transition-all">
+                <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Nome da Escola *</label>
+                <input type="text" value={matricula_escola} onChange={e => setMatriculaEscola(e.target.value)} 
+                  placeholder={aluno_de_fora === 'Não' ? 'INSTITUTO SOCIAL E EDUCACIONAL CANAÃ' : 'Onde o aluno estuda?'}
+                  className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all" required />
+              </div>
 
               {/* ── SÉRIE / TURMA / TURNO (UNIFICADO) ── */}
               <div className="md:col-span-2 grid grid-cols-3 gap-3 p-4 bg-gray-50 dark:bg-slate-800/30 rounded-2xl border border-gray-100 dark:border-slate-800">
@@ -1386,29 +1421,16 @@ export default function Students() {
                     className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold text-xs transition-all" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">CPF do Pai (Opcional)</label>
-                  <input type="text" value={pai_cpf} onChange={e => setPaiCpf(maskCPF(e.target.value))} placeholder="000.000.000-00"
-                    className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold text-xs transition-all" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2 pt-2">
-                <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Nome da Mãe</label>
                   <input type="text" value={mae} onChange={e => setMae(e.target.value)} placeholder="Nome completo"
-                    className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold text-xs transition-all" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">CPF da Mãe (Opcional)</label>
-                  <input type="text" value={mae_cpf} onChange={e => setMaeCpf(maskCPF(e.target.value))} placeholder="000.000.000-00"
                     className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold text-xs transition-all" />
                 </div>
               </div>
 
               {/* ── SELEÇÃO DE PROJETOS ── */}
               <div className="md:col-span-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-azul-claro dark:text-azul-claro/80 border-b border-azul-claro/20 pb-1 mb-3 mt-2 font-mono">Vínculo com Projetos</p>
-                <div className="grid grid-cols-2 gap-2 mt-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-azul-claro dark:text-azul-claro/80 border-b border-azul-claro/20 pb-1 mb-3 mt-2 font-mono">Projetos do Aluno</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                   {projects.map(proj => (
                     <button
                       key={proj.id}
@@ -1424,103 +1446,6 @@ export default function Students() {
                       {selectedProjectIds.includes(proj.id) && <CheckCircle size={14} className="text-azul-claro" />}
                     </button>
                   ))}
-                </div>
-              </div>
-
-              {/* ── HORÁRIO DA AULA NO PROJETO ── */}
-              <div className="md:col-span-2 bg-azul-claro/5 dark:bg-blue-900/10 p-5 rounded-2xl border border-azul-claro/10 dark:border-blue-900/30 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-[10px] font-black uppercase text-azul-claro tracking-widest font-mono">Horário da Aula no Projeto</p>
-                    <p className="text-[9px] text-azul-escuro/40 dark:text-slate-400 font-bold uppercase mt-1">Defina o turno e horário da atividade no Instituto</p>
-                  </div>
-                  <span className="text-[8px] bg-azul-claro text-white px-2 py-0.5 rounded-full font-bold uppercase animate-pulse">Obrigatório p/ Contrato</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-azul-escuro/60 dark:text-slate-400">Turno da Aula *</label>
-                    <select 
-                      value={projeto_turno} 
-                      onChange={(e) => setProjetoTurno(e.target.value)}
-                      required
-                      className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold text-xs shadow-sm transition-all"
-                    >
-                      <option value="" className="dark:bg-slate-800">Selecione...</option>
-                      <option value="MANHÃ" className="dark:bg-slate-800">MANHÃ</option>
-                      <option value="TARDE" className="dark:bg-slate-800">TARDE</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-azul-escuro/60 dark:text-slate-400">Horário da Aula *</label>
-                    <input 
-                      type="text" 
-                      value={projeto_horario} 
-                      onChange={(e) => setProjetoHorario(e.target.value)}
-                      placeholder="Ex: 08:30 às 10:00"
-                      required
-                      className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold text-xs shadow-sm transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* ── RELAÇÃO FAMILIAR ── */}
-              <div className="md:col-span-2">
-                <p className="text-[10px] font-black uppercase tracking-widest text-azul-claro dark:text-azul-claro/80 border-b border-azul-claro/20 pb-1 mb-3 mt-2 font-mono">Relação Familiar</p>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between bg-gray-50 dark:bg-slate-800/30 p-4 rounded-2xl border-2 border-transparent dark:border-slate-800 hover:border-gray-100 dark:hover:border-slate-700 transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center text-azul-claro shadow-sm border border-gray-100 dark:border-slate-700">
-                        <Users size={18} />
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-azul-escuro dark:text-white uppercase">Tem irmão no projeto?</p>
-                        <p className="text-[10px] text-gray-400 dark:text-slate-500 font-bold uppercase">Marque se o aluno possui parentesco direto</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked={hasIrmao} onChange={(e) => setHasIrmao(e.target.checked)} />
-                      <div className="w-11 h-6 bg-gray-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-azul-claro"></div>
-                    </label>
-                  </div>
-
-                  {hasIrmao && (
-                    <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-                      <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Selecione o Irmão/Irmã *</label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-3.5 text-gray-400" size={16} />
-                        <select 
-                          value={irmaoId} 
-                          onChange={(e) => setIrmaoId(e.target.value)}
-                          required={hasIrmao}
-                          className="w-full pl-10 pr-4 py-3.5 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold appearance-none transition-all"
-                        >
-                          <option value="" className="dark:bg-slate-800">Buscar aluno...</option>
-                          {students
-                            .filter(s => s.id !== editingStudent?.id)
-                            .map(s => <option key={s.id} value={s.id} className="dark:bg-slate-800">{s.nome.toUpperCase()}</option>)
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── INSTRUMENTO (CONDICIONAL PARA MÚSICA) ── */}
-                  {selectedProjectIds.some(pid => getProjectType(projects.find(p => p.id === pid)?.nome) === 'musica') && (
-                    <div className="space-y-2 animate-in slide-in-from-top-2 duration-300 bg-amber-50/50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-200/50 dark:border-amber-900/30">
-                      <label className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-500">Qual instrumento toca ou deseja aprender? *</label>
-                      <input 
-                        type="text" 
-                        value={instrumento} 
-                        onChange={(e) => setInstrumento(e.target.value)}
-                        placeholder="Ex: Violão, Teclado, Bateria..."
-                        required
-                        className="w-full p-3 bg-white dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-amber-500 text-azul-escuro dark:text-white font-bold shadow-sm transition-all"
-                      />
-                    </div>
-                  )}
-
-
                 </div>
               </div>
 
