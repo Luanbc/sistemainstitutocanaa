@@ -627,14 +627,14 @@ export default function Students() {
       codigo, nome, data_nascimento, sexo,
       endereco, numero, bairro, cidade, uf, cep,
       pai, mae, resp, parentesco, cpf, tel,
-      matricula_escola: matricula_escola,
+      matricula_escola: (aluno_de_fora === 'Não' && !matricula_escola) ? 'INSTITUTO SOCIAL E EDUCACIONAL CANAÃ' : matricula_escola,
       turma, turno, serie, aluno_de_fora,
       irmao_id: null,
-      instrumento: null,
-      projeto_turno: null, // Removido do formulário simplificado
-      projeto_horario: null, // Removido do formulário simplificado
-      pai_cpf: null,
-      mae_cpf: null
+      instrumento: '',
+      projeto_turno: '', 
+      projeto_horario: '', 
+      pai_cpf: '',
+      mae_cpf: ''
     };
 
 
@@ -1353,23 +1353,6 @@ export default function Students() {
                 </div>
 
                 {/* BLOCO REMOVIDO DAQUI */}
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Data de Nascimento</label>
-                <input type="date" value={data_nascimento} onChange={e => setDataNascimento(e.target.value)}
-                  className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-slate-500">Sexo</label>
-                <select value={sexo} onChange={e => setSexo(e.target.value)}
-                  className="w-full p-3 bg-gray-50 dark:bg-slate-800 border-2 border-transparent dark:border-slate-700 rounded-xl outline-none focus:border-azul-claro text-azul-escuro dark:text-white font-bold transition-all">
-                  <option value="" className="dark:bg-slate-800">Selecione...</option>
-                  <option value="Masculino" className="dark:bg-slate-800">Masculino</option>
-                  <option value="Feminino" className="dark:bg-slate-800">Feminino</option>
-                  <option value="Outro" className="dark:bg-slate-800">Outro</option>
-                </select>
               </div>
 
               {/* ── ENDEREÇO ── */}
