@@ -72,5 +72,5 @@ Pré-requisitos: `Node.js` (v18+) instalado.
 ---
 
 <p align="center">
-  Construído com ❤️ e alta performance para facilitar dezenas de horas de administração escolar 🚀
+  Construído com alta performance para facilitar dezenas de horas de administração escolar 🚀
 </p>
