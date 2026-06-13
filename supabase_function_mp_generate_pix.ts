@@ -16,7 +16,37 @@ serve(async (req) => {
   }
 
   try {
-    const { paymentId, amount, description, email } = await req.json();
+    const { paymentId, amount, description, email, vencimento } = await req.json();
+
+    let expirationDateString: string | undefined = undefined;
+    if (vencimento && typeof vencimento === 'string' && vencimento.includes('/')) {
+      const [dayStr, monthStr, yearStr] = vencimento.split('/');
+      const day = parseInt(dayStr, 10);
+      const month = parseInt(monthStr, 10) - 1;
+      const year = parseInt(yearStr, 10);
+      
+      const dueDate = new Date(year, month, day, 23, 59, 59);
+      // Adiciona 30 dias de tolerância
+      dueDate.setDate(dueDate.getDate() + 30);
+
+      const now = new Date();
+      const minExpiration = new Date(now.getTime() + 30 * 60 * 1000); // Mínimo de 30 minutos a partir de agora
+      const maxExpiration = new Date(now.getTime() + 29 * 24 * 60 * 60 * 1000); // Máximo de 29 dias
+
+      if (dueDate < minExpiration) {
+        // Se já venceu há muito tempo (passou da tolerância de 30 dias), damos 24 horas de validade a partir de agora
+        const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        expirationDateString = tomorrow.toISOString();
+      } else if (dueDate > maxExpiration) {
+        expirationDateString = maxExpiration.toISOString();
+      } else {
+        expirationDateString = dueDate.toISOString();
+      }
+    } else {
+      const tomorrow = new Date();
+      tomorrow.setHours(tomorrow.getHours() + 24);
+      expirationDateString = tomorrow.toISOString();
+    }
 
     const response = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
@@ -33,7 +63,8 @@ serve(async (req) => {
           email: email || "aluno@canaa.com",
         },
         external_reference: paymentId.toString(),
-        notification_url: `${SUPABASE_URL}/functions/v1/mp-webhook`
+        notification_url: `${SUPABASE_URL}/functions/v1/mp-webhook`,
+        date_of_expiration: expirationDateString
       })
     });
 
